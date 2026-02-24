@@ -1,0 +1,38 @@
+## .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
+*.DotSettings.user
+
+## VS Code
+.vscode/
+
+## Rider
+.idea/
+
+## NuGet
+**/packages/
+*.nupkg
+**/project.assets.json
+
+## Build results
+**/publish/
+**/out/
+
+## OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## Docker
+**/docker-compose.override.yml
+
+## User secrets
+**/appsettings.Development.json

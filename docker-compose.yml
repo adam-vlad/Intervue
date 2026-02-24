@@ -1,0 +1,38 @@
+# Docker Compose — orchestrates all 3 containers:
+# 1. ollama — the local LLM server
+# 2. backend — the ASP.NET Core Web API
+# 3. frontend — React/Next.js (will be added in weeks 8-9)
+
+services:
+  # ── Ollama — local LLM server ──────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mockinterview-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    restart: unless-stopped
+
+  # ── Backend — ASP.NET Core Web API ─────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: src/MockInterview.Api/Dockerfile
+    container_name: mockinterview-backend
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Ollama__BaseUrl=http://ollama:11434
+      - Ollama__Model=llama3:8b-instruct-q4_0
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
