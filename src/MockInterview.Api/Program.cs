@@ -1,9 +1,13 @@
 using MockInterview.Application;
+using MockInterview.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Register Application layer services (MediatR, FluentValidation, Behaviors)
 builder.Services.AddApplication();
+
+// Register Infrastructure layer services (Ollama, PdfPig, SHA-256, Repositories)
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Register controllers and Swagger for API documentation
 builder.Services.AddControllers();
@@ -19,7 +23,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 

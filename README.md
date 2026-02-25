@@ -36,6 +36,7 @@ Aplicație de mock interview personalizat pe CV, rulată integral local folosind
 | Mediator/CQRS | MediatR |
 | Validare | FluentValidation |
 | Teste | xUnit + Moq + FluentAssertions |
+| HTTP Resilience | HttpClient cu timeout 10 min (inferență LLM locală) |
 
 ---
 
@@ -141,8 +142,8 @@ Trebuie să vezi `llama3:8b-instruct-q4_0` în listă.
 dotnet run --project src/MockInterview.Api
 ```
 
-API-ul pornește pe `https://localhost:5001` (sau `http://localhost:5000`).
-Swagger UI: `https://localhost:5001/swagger`
+API-ul pornește pe `http://localhost:5000`.
+Swagger UI: `http://localhost:5000/swagger`
 
 ### 8. (Alternativ) Rulează totul cu Docker Compose
 
@@ -199,6 +200,22 @@ Aceasta pornește **ollama** + **backend** împreună.
 - `InterviewStatus` (NotStarted → InProgress → Completed)
 - `MessageRole` (Interviewer / Candidate)
 - `DifficultyLevel` (Junior / Mid / Senior)
+
+---
+
+## Detalii de implementare
+
+### Timeout HTTP — 10 minute
+Comunicarea cu Ollama folosește un `HttpClient` cu timeout de **10 minute** (în loc de 100 secunde implicit). Inferența locală pe CPU poate dura 2-5 minute pentru prompturi complexe (parsare CV, generare feedback).
+
+### Parsare robustă a răspunsurilor LLM
+Răspunsurile JSON de la LLM (parsare CV, feedback) sunt procesate cu:
+- Eliminare markdown code fences (` ```json ... ``` `)
+- Normalizare `snake_case` → `camelCase` (ex: `overall_score` → `overallScore`)
+- Deserializare case-insensitive cu `AllowTrailingCommas`
+- Fallback defaults pentru câmpuri lipsă (scoruri pe categorii, text placeholder)
+
+Acest lucru asigură că endpoint-urile funcționează indiferent de variațiile de format ale LLM-ului.
 
 ---
 

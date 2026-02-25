@@ -166,12 +166,16 @@ Content-Type: application/json
 { "interviewId": "id-ul interviului" }
 ```
 
+**Notă:** Acest pas poate dura 2-5 minute pe CPU deoarece LLM-ul analizează toată conversația.
+
 **Răspuns:** raport complet cu:
 - **Scor general** (0–100)
-- **Scoruri pe categorii** (cunoștințe tehnice, comunicare, rezolvare probleme, etc.)
+- **Scoruri pe categorii** (cunoștințe tehnice, comunicare, rezolvare probleme, relevanță experiență)
 - **Puncte tari** — ce ai făcut bine
 - **Puncte slabe** — unde poți îmbunătăți
 - **Sugestii** — recomandări concrete
+
+Parser-ul de feedback este robust: tratează automat variații de format din LLM (markdown fences, snake_case, câmpuri lipsă).
 
 ### Pasul 5.6 — Vizualizare interviu
 
@@ -220,8 +224,16 @@ docker exec mockinterview-ollama ollama pull llama3:8b-instruct-q4_0
 → Restaurează pachetele: `dotnet restore MockInterview.sln`
 
 ### Răspunsurile de la LLM sunt foarte lente
-→ Normal — pe CPU, un răspuns poate dura 30-60 secunde. Cu GPU NVIDIA, durează 5-10 secunde.
+→ Normal — pe CPU, un răspuns poate dura 1-5 minute pentru operații complexe (parsare CV, feedback). Cu GPU NVIDIA, durează 10-30 secunde.
+→ HttpClient-ul are timeout de **10 minute**, suficient și pentru hardware modest.
 → Verifică că Docker Desktop are access la GPU: Settings → Resources → GPU.
+
+### Feedback-ul dă eroare de parsare (500 — Feedback.ParseFailed)
+→ Uneori LLM-ul returnează JSON într-un format ușor diferit. Parser-ul tratează automat:
+  - Markdown code fences (`json ... `)
+  - snake_case în loc de camelCase
+  - Câmpuri lipsă (se completează cu defaults)
+→ Dacă tot dă eroare, reîncearcă — LLM-ul poate genera alt format la următoarea cerere.
 
 ### Portul 5000 este ocupat
 → Oprește procesul care folosește portul sau modifică portul în `docker-compose.yml` (linia `ports`).
