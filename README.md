@@ -1,6 +1,6 @@
-# MockInterview — AI Mock Interview Platform
+# Intervue — AI Interview Coach
 
-Aplicație de mock interview personalizat pe CV, rulată integral local folosind un LLM (Ollama + Llama 3 8B).
+Platformă de interviu tehnic personalizat pe CV, rulată integral local folosind un LLM (Ollama + Llama 3 8B).
 
 > **Lucrare de licență** — FII UAIC, coordonator Florin Olariu
 
@@ -53,15 +53,15 @@ Domain nu cunoaște pe nimeni din exterior. Dependențele merg spre interior.
 ### Proiecte în soluție
 
 ```
-MockInterview.sln
+Intervue.sln
 ├── src/
-│   ├── MockInterview.Domain/            # Entități, Value Objects, Enums, Guard, Repository interfaces
-│   ├── MockInterview.Application/       # CQRS (Commands/Queries), Result<T>, MediatR behaviors, Interfaces
-│   ├── MockInterview.Infrastructure/    # Implementări: OllamaClient, PdfPig, SHA-256, Repositories in-memory
-│   └── MockInterview.Api/              # Controllers, Program.cs, Swagger
+│   ├── Intervue.Domain/            # Entități, Value Objects, Enums, Guard, Repository interfaces
+│   ├── Intervue.Application/       # CQRS (Commands/Queries), Result<T>, MediatR behaviors, Interfaces
+│   ├── Intervue.Infrastructure/    # Implementări: OllamaClient, PdfPig, SHA-256, Repositories in-memory
+│   └── Intervue.Api/              # Controllers, Program.cs, Swagger
 ├── tests/
-│   ├── MockInterview.UnitTests/        # xUnit + Moq + FluentAssertions
-│   └── MockInterview.IntegrationTests/ # Microsoft.AspNetCore.Mvc.Testing
+│   ├── Intervue.UnitTests/        # xUnit + Moq + FluentAssertions
+│   └── Intervue.IntegrationTests/ # Microsoft.AspNetCore.Mvc.Testing
 ├── docker-compose.yml
 └── README.md
 ```
@@ -85,8 +85,8 @@ MockInterview.sln
 ### 1. Clonează repository-ul
 
 ```bash
-git clone https://github.com/<USERNAME>/MockInterview.git
-cd MockInterview
+git clone https://github.com/<USERNAME>/Intervue.git
+cd Intervue
 ```
 
 ### 2. Verifică .NET SDK
@@ -101,13 +101,13 @@ Dacă nu ai .NET 10, descarcă-l de la: https://dotnet.microsoft.com/download/do
 ### 3. Restaurează pachetele NuGet
 
 ```bash
-dotnet restore MockInterview.sln
+dotnet restore Intervue.sln
 ```
 
 ### 4. Verifică build-ul
 
 ```bash
-dotnet build MockInterview.sln
+dotnet build Intervue.sln
 ```
 
 Trebuie să vezi `Build succeeded` și 0 erori.
@@ -125,13 +125,13 @@ Aceasta pornește containerul Ollama pe portul `11434`.
 ### 6. Descarcă modelul LLM (~4.7 GB, se face o singură dată)
 
 ```bash
-docker exec mockinterview-ollama ollama pull llama3:8b-instruct-q4_0
+docker exec intervue-ollama ollama pull llama3:8b-instruct-q4_0
 ```
 
 Verifică că modelul s-a descărcat:
 
 ```bash
-docker exec mockinterview-ollama ollama list
+docker exec intervue-ollama ollama list
 ```
 
 Trebuie să vezi `llama3:8b-instruct-q4_0` în listă.
@@ -139,7 +139,7 @@ Trebuie să vezi `llama3:8b-instruct-q4_0` în listă.
 ### 7. Rulează backend-ul (development)
 
 ```bash
-dotnet run --project src/MockInterview.Api
+dotnet run --project src/Intervue.Api
 ```
 
 API-ul pornește pe `http://localhost:5000`.
@@ -161,13 +161,13 @@ Aceasta pornește **ollama** + **backend** împreună.
 
 | Comandă | Ce face |
 |---|---|
-| `dotnet build MockInterview.sln` | Compilează toată soluția |
-| `dotnet test MockInterview.sln` | Rulează toate testele |
-| `dotnet run --project src/MockInterview.Api` | Pornește backend-ul local |
+| `dotnet build Intervue.sln` | Compilează toată soluția |
+| `dotnet test Intervue.sln` | Rulează toate testele |
+| `dotnet run --project src/Intervue.Api` | Pornește backend-ul local |
 | `docker compose up -d` | Pornește toate containerele |
 | `docker compose down` | Oprește toate containerele |
 | `docker compose logs -f ollama` | Vezi log-urile Ollama |
-| `docker exec mockinterview-ollama ollama list` | Listează modelele descărcate |
+| `docker exec intervue-ollama ollama list` | Listează modelele descărcate |
 
 ---
 
@@ -175,12 +175,12 @@ Aceasta pornește **ollama** + **backend** împreună.
 
 | Metodă | Endpoint | Descriere |
 |---|---|---|
-| `POST` | `/api/cv/upload` | Uploadează PDF, extrage text |
-| `POST` | `/api/cv/parse` | LLM parsează CV-ul |
-| `POST` | `/api/interview/start` | Pornește mock interview |
-| `POST` | `/api/interview/message` | Trimite răspuns, primește follow-up |
-| `POST` | `/api/interview/feedback` | Generează raport final |
-| `GET` | `/api/interview/{id}` | Istoricul unui interviu |
+| `POST` | `/api/v1/cv/upload` | Uploadează PDF, extrage text |
+| `POST` | `/api/v1/cv/parse` | LLM parsează CV-ul |
+| `POST` | `/api/v1/interview/start` | Pornește interviul |
+| `POST` | `/api/v1/interview/message` | Trimite răspuns, primește follow-up |
+| `POST` | `/api/v1/interview/feedback` | Generează raport final |
+| `GET` | `/api/v1/interview/{id}` | Istoricul unui interviu |
 
 ---
 

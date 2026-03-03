@@ -1,4 +1,5 @@
-# Docker Compose — orchestrates all 3 containers:
+# Docker Compose — Intervue (AI Interview Coach)
+# Orchestrates all containers:
 # 1. ollama — the local LLM server
 # 2. backend — the ASP.NET Core Web API
 # 3. frontend — React/Next.js (will be added in weeks 8-9)
@@ -7,23 +8,26 @@ services:
   # ── Ollama — local LLM server ──────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: mockinterview-ollama
+    container_name: intervue-ollama
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     deploy:
       resources:
-        limits:
-          memory: 6G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     restart: unless-stopped
 
   # ── Backend — ASP.NET Core Web API ─────────────────────────────────
   backend:
     build:
       context: .
-      dockerfile: src/MockInterview.Api/Dockerfile
-    container_name: mockinterview-backend
+      dockerfile: src/Intervue.Api/Dockerfile
+    container_name: intervue-backend
     ports:
       - "5000:8080"
     environment:

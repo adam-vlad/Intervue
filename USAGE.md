@@ -1,6 +1,6 @@
-# Ghid de utilizare — MockInterview
+# Ghid de utilizare — Intervue
 
-Acest document explică cum să folosești aplicația MockInterview, de la instalare până la generarea raportului de feedback.
+Acest document explică cum să folosești aplicația Intervue, de la instalare până la generarea raportului de feedback.
 
 ---
 
@@ -32,14 +32,14 @@ Dacă oricare comandă nu funcționează, instalează componenta lipsă de la li
 
 ```bash
 # Clonează proiectul
-git clone https://github.com/<USERNAME>/MockInterview.git
-cd MockInterview
+git clone https://github.com/<USERNAME>/Intervue.git
+cd Intervue
 
 # Restaurează pachetele NuGet
-dotnet restore MockInterview.sln
+dotnet restore Intervue.sln
 
 # Compilează soluția
-dotnet build MockInterview.sln
+dotnet build Intervue.sln
 ```
 
 Dacă vezi **Build succeeded** cu 0 erori, totul e în regulă.
@@ -59,13 +59,13 @@ docker compose up ollama -d
 ### Pasul 2 — Descarcă modelul (doar prima dată, ~4.7 GB)
 
 ```bash
-docker exec mockinterview-ollama ollama pull llama3:8b-instruct-q4_0
+docker exec intervue-ollama ollama pull llama3:8b-instruct-q4_0
 ```
 
 Aștepți până se descarcă (poate dura 5-15 minute, depinde de internet). Verifici:
 
 ```bash
-docker exec mockinterview-ollama ollama list
+docker exec intervue-ollama ollama list
 ```
 
 Trebuie să apară `llama3:8b-instruct-q4_0` în tabel.
@@ -75,7 +75,7 @@ Trebuie să apară `llama3:8b-instruct-q4_0` în tabel.
 **Varianta A — local (pentru development):**
 
 ```bash
-dotnet run --project src/MockInterview.Api
+dotnet run --project src/Intervue.Api
 ```
 
 **Varianta B — totul în Docker:**
@@ -100,14 +100,14 @@ Swagger este o pagină web generată automat unde poți vedea toate endpoint-uri
 
 ---
 
-## 5. Fluxul complet al unui mock interview
+## 5. Fluxul complet al unui interviu
 
 ### Pasul 5.1 — Upload CV
 
 Trimite un fișier PDF cu CV-ul tău:
 
 ```
-POST /api/cv/upload
+POST /api/v1/cv/upload
 Content-Type: multipart/form-data
 
 Body: fișierul PDF
@@ -120,7 +120,7 @@ Body: fișierul PDF
 Trimite id-ul CV-ului pentru parsare:
 
 ```
-POST /api/cv/parse
+POST /api/v1/cv/parse
 Content-Type: application/json
 
 { "cvProfileId": "id-ul primit la upload" }
@@ -131,7 +131,7 @@ Content-Type: application/json
 ### Pasul 5.3 — Pornire interviu
 
 ```
-POST /api/interview/start
+POST /api/v1/interview/start
 Content-Type: application/json
 
 { "cvProfileId": "id-ul CV-ului" }
@@ -144,7 +144,7 @@ Content-Type: application/json
 Trimite răspunsul tău și primești o întrebare follow-up:
 
 ```
-POST /api/interview/message
+POST /api/v1/interview/message
 Content-Type: application/json
 
 {
@@ -160,7 +160,7 @@ Content-Type: application/json
 După minim 3 răspunsuri, poți cere raportul final:
 
 ```
-POST /api/interview/feedback
+POST /api/v1/interview/feedback
 Content-Type: application/json
 
 { "interviewId": "id-ul interviului" }
@@ -182,7 +182,7 @@ Parser-ul de feedback este robust: tratează automat variații de format din LLM
 Poți revizui oricând un interviu complet:
 
 ```
-GET /api/interview/{id}
+GET /api/v1/interview/{id}
 ```
 
 ---
@@ -209,19 +209,19 @@ docker compose stop ollama
 ### „Cannot connect to Ollama" / „Connection refused"
 → Verifică dacă containerul Ollama rulează:
 ```bash
-docker ps --filter name=mockinterview-ollama
+docker ps --filter name=intervue-ollama
 ```
 Dacă nu apare, pornește-l: `docker compose up ollama -d`
 
 ### „Model not found"
 → Modelul nu a fost descărcat. Rulează:
 ```bash
-docker exec mockinterview-ollama ollama pull llama3:8b-instruct-q4_0
+docker exec intervue-ollama ollama pull llama3:8b-instruct-q4_0
 ```
 
 ### Build-ul dă erori
 → Verifică versiunea .NET: `dotnet --version` (trebuie 10.x.x)
-→ Restaurează pachetele: `dotnet restore MockInterview.sln`
+→ Restaurează pachetele: `dotnet restore Intervue.sln`
 
 ### Răspunsurile de la LLM sunt foarte lente
 → Normal — pe CPU, un răspuns poate dura 1-5 minute pentru operații complexe (parsare CV, feedback). Cu GPU NVIDIA, durează 10-30 secunde.
@@ -243,15 +243,15 @@ docker exec mockinterview-ollama ollama pull llama3:8b-instruct-q4_0
 ## 8. Structura folderelor
 
 ```
-MockInterview/
+Intervue/
 ├── src/
-│   ├── MockInterview.Domain/            # Entități, reguli de business
-│   ├── MockInterview.Application/       # Comenzi, query-uri, validări
-│   ├── MockInterview.Infrastructure/    # Ollama, PdfPig, SHA-256
-│   └── MockInterview.Api/              # Controllere HTTP, Swagger
+│   ├── Intervue.Domain/            # Entități, reguli de business
+│   ├── Intervue.Application/       # Comenzi, query-uri, validări
+│   ├── Intervue.Infrastructure/    # Ollama, PdfPig, SHA-256
+│   └── Intervue.Api/              # Controllere HTTP, Swagger
 ├── tests/
-│   ├── MockInterview.UnitTests/        # Teste unitare
-│   └── MockInterview.IntegrationTests/ # Teste de integrare
+│   ├── Intervue.UnitTests/        # Teste unitare
+│   └── Intervue.IntegrationTests/ # Teste de integrare
 ├── docker-compose.yml                   # Orchestrare containere
 ├── README.md                            # Descriere proiect + setup
 ├── USAGE.md                             # Acest fișier
