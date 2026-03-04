@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Intervue.Api.Extensions;
@@ -10,7 +11,8 @@ namespace Intervue.Api.Controllers;
 /// Controller for CV-related endpoints: upload and parse.
 /// </summary>
 [ApiController]
-[Route("api/v1/cv")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/cv")]
 public class CvController : ControllerBase
 {
     private readonly IMediator _mediator;

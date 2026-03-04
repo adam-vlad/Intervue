@@ -13,6 +13,9 @@ public class Project : Entity<Guid>
 
     private readonly List<string> _technologiesUsed = new();
 
+    // Required by EF Core for database loading
+    private Project() : base(default!) { Name = default!; }
+
     private Project(Guid id, string name, string? description, List<string> technologiesUsed)
         : base(id)
     {

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Intervue.Api.Extensions;
@@ -12,7 +13,8 @@ namespace Intervue.Api.Controllers;
 /// Controller for Interview-related endpoints: start, message, feedback, and get.
 /// </summary>
 [ApiController]
-[Route("api/v1/interview")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/interview")]
 public class InterviewController : ControllerBase
 {
     private readonly IMediator _mediator;

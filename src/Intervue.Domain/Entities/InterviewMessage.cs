@@ -13,6 +13,9 @@ public class InterviewMessage : Entity<Guid>
     public string Content { get; private set; }
     public DateTime SentAt { get; private set; }
 
+    // Required by EF Core for database loading
+    private InterviewMessage() : base(default!) { Content = default!; }
+
     private InterviewMessage(Guid id, MessageRole role, string content, DateTime sentAt)
         : base(id)
     {

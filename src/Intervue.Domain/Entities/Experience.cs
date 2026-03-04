@@ -12,6 +12,9 @@ public class Experience : Entity<Guid>
     public int DurationMonths { get; private set; }
     public string? Description { get; private set; }
 
+    // Required by EF Core for database loading
+    private Experience() : base(default!) { Role = default!; Company = default!; }
+
     private Experience(Guid id, string role, string company, int durationMonths, string? description)
         : base(id)
     {

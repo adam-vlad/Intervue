@@ -1,18 +1,18 @@
 # Ghid de utilizare — Intervue
 
-Acest document explică cum să folosești aplicația Intervue, de la instalare până la generarea raportului de feedback.
+Acest document explică pas cu pas cum să pornești și să folosești aplicația, de la instalare până la generarea raportului de feedback. Am încercat să fie suficient de detaliat încât să poți urma pașii chiar dacă nu ai mai lucrat cu Docker sau .NET înainte.
 
 ---
 
 ## 1. Pregătirea mediului
 
-### Ce ai nevoie instalat
+### Ce trebuie instalat
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Visual Studio Code](https://code.visualstudio.com/) + extensia **C# Dev Kit**
 - [Git](https://git-scm.com/downloads)
 - Minim **16 GB RAM** (recomandat 32 GB)
-- (Opțional) Placă video NVIDIA cu 6+ GB VRAM pentru accelerarea LLM-ului
+- (Opțional) Placă video NVIDIA cu 6+ GB VRAM — face inferența LLM mult mai rapidă
 
 ### Verificare rapidă
 
@@ -42,27 +42,32 @@ dotnet restore Intervue.sln
 dotnet build Intervue.sln
 ```
 
-Dacă vezi **Build succeeded** cu 0 erori, totul e în regulă.
+Dacă vezi **Build succeeded** cu 0 erori, ești gata.
 
 ---
 
-## 3. Pornirea serviciilor (Docker)
+## 3. Pornirea serviciilor Docker
 
-**Important:** Docker Desktop trebuie să fie pornit (vezi icoana Docker în system tray, lângă ceas).
+**Important:** Docker Desktop trebuie să fie deschis (verifică icoana din system tray, lângă ceas).
 
-### Pasul 1 — Pornește Ollama (serverul LLM)
+### Pasul 1 — Pornește toate containerele
 
 ```bash
-docker compose up ollama -d
+docker compose up -d
 ```
 
-### Pasul 2 — Descarcă modelul (doar prima dată, ~4.7 GB)
+Aceasta pornește 3 containere:
+- **Ollama** — serverul LLM (port `11434`)
+- **PostgreSQL 17** — baza de date (port `5432`)
+- **pgAdmin** — interfață web pentru baza de date (port `5050`)
+
+### Pasul 2 — Descarcă modelul LLM (doar prima dată, ~4.7 GB)
 
 ```bash
 docker exec intervue-ollama ollama pull llama3:8b-instruct-q4_0
 ```
 
-Aștepți până se descarcă (poate dura 5-15 minute, depinde de internet). Verifici:
+Durează 5-15 minute, depinde de conexiune. Verifici dacă s-a descărcat:
 
 ```bash
 docker exec intervue-ollama ollama list
@@ -72,17 +77,11 @@ Trebuie să apară `llama3:8b-instruct-q4_0` în tabel.
 
 ### Pasul 3 — Pornește backend-ul
 
-**Varianta A — local (pentru development):**
-
 ```bash
 dotnet run --project src/Intervue.Api
 ```
 
-**Varianta B — totul în Docker:**
-
-```bash
-docker compose up --build -d
-```
+La prima pornire, aplicația creează automat tabelele în PostgreSQL (migrarea `InitialCreate` se aplică prin `MigrateAsync()`).
 
 ---
 
@@ -90,13 +89,22 @@ docker compose up --build -d
 
 | Serviciu | URL | Notă |
 |---|---|---|
-| Backend API (local) | http://localhost:5000 | Când rulezi cu `dotnet run` |
-| Backend API (Docker) | http://localhost:5000 | Când rulezi cu `docker compose` |
-| Swagger UI | http://localhost:5000/swagger | Interfață vizuală pentru testarea API-ului |
+| Backend API | http://localhost:5000 | API-ul principal |
+| Swagger UI | http://localhost:5000/swagger | Interfață vizuală pentru testare |
+| pgAdmin | http://localhost:5050 | Browser-based database viewer |
 | Ollama | http://localhost:11434 | Serverul LLM (nu trebuie accesat direct) |
 
-### Ce este Swagger?
-Swagger este o pagină web generată automat unde poți vedea toate endpoint-urile API-ului și le poți testa direct din browser — fără să scrii cod.
+### Swagger
+Swagger este o pagină generată automat unde poți vedea toate endpoint-urile și le poți testa din browser, fără să scrii cod. E cel mai rapid mod de a testa API-ul.
+
+### pgAdmin
+La prima deschidere, pgAdmin cere un **master password** — pune ce vrei (eu am pus `admin`). Apoi adaugi serverul PostgreSQL:
+- **Host**: `postgres` (nu `localhost` — containerele comunică între ele prin numele de serviciu)
+- **Port**: `5432`
+- **Username**: `intervue`
+- **Password**: `intervue_dev`
+
+După care navighezi la: **Servers → Intervue → Databases → intervue_db → Schemas → public → Tables** și poți vedea datele cu Query Tool (`Tools → Query Tool`, apoi `SELECT * FROM cv_profiles;`).
 
 ---
 
@@ -104,7 +112,7 @@ Swagger este o pagină web generată automat unde poți vedea toate endpoint-uri
 
 ### Pasul 5.1 — Upload CV
 
-Trimite un fișier PDF cu CV-ul tău:
+Trimite un fișier PDF cu CV-ul:
 
 ```
 POST /api/v1/cv/upload
@@ -113,11 +121,11 @@ Content-Type: multipart/form-data
 Body: fișierul PDF
 ```
 
-**Răspuns:** primești un `id` (GUID) — acesta identifică CV-ul tău în sistem.
+**Răspuns:** un `id` (GUID) — identificatorul CV-ului în sistem.
 
 ### Pasul 5.2 — Parsarea CV-ului
 
-Trimite id-ul CV-ului pentru parsare:
+LLM-ul analizează textul și extrage datele structurate:
 
 ```
 POST /api/v1/cv/parse
@@ -126,7 +134,9 @@ Content-Type: application/json
 { "cvProfileId": "id-ul primit la upload" }
 ```
 
-**Răspuns:** un obiect JSON cu tehnologiile, experiența, proiectele și nivelul detectat din CV.
+**Răspuns:** un obiect JSON cu tehnologiile, experiența, proiectele și nivelul detectat. Datele sunt salvate în PostgreSQL.
+
+**Notă:** Acest pas poate dura 15-30 secunde (pe GPU) sau 1-3 minute (pe CPU).
 
 ### Pasul 5.3 — Pornire interviu
 
@@ -137,11 +147,11 @@ Content-Type: application/json
 { "cvProfileId": "id-ul CV-ului" }
 ```
 
-**Răspuns:** interviul creat + prima întrebare de la AI.
+**Răspuns:** interviul nou creat + prima întrebare de la AI, personalizată pe stackul din CV.
 
 ### Pasul 5.4 — Conversație (se repetă)
 
-Trimite răspunsul tău și primești o întrebare follow-up:
+Trimiți răspunsul tău și primești o întrebare follow-up:
 
 ```
 POST /api/v1/interview/message
@@ -153,11 +163,11 @@ Content-Type: application/json
 }
 ```
 
-**Răspuns:** următoarea întrebare de la AI. Repetă acest pas de câte ori dorești (minim 3 răspunsuri).
+**Răspuns:** următoarea întrebare de la AI. Repetă de câte ori vrei (minim 3 pentru un feedback relevant).
 
 ### Pasul 5.5 — Generare feedback
 
-După minim 3 răspunsuri, poți cere raportul final:
+După ce ai răspuns la câteva întrebări, ceri raportul final:
 
 ```
 POST /api/v1/interview/feedback
@@ -166,20 +176,18 @@ Content-Type: application/json
 { "interviewId": "id-ul interviului" }
 ```
 
-**Notă:** Acest pas poate dura 2-5 minute pe CPU deoarece LLM-ul analizează toată conversația.
+**Notă:** Poate dura 2-5 minute pe CPU — LLM-ul analizează toată conversația.
 
-**Răspuns:** raport complet cu:
+**Răspuns:**
 - **Scor general** (0–100)
-- **Scoruri pe categorii** (cunoștințe tehnice, comunicare, rezolvare probleme, relevanță experiență)
-- **Puncte tari** — ce ai făcut bine
-- **Puncte slabe** — unde poți îmbunătăți
+- **Scoruri pe categorii** (cunoștințe tehnice, comunicare, problem solving, relevanță experiență)
+- **Puncte tari** — ce a fost bine
+- **Puncte slabe** — unde se poate îmbunătăți
 - **Sugestii** — recomandări concrete
-
-Parser-ul de feedback este robust: tratează automat variații de format din LLM (markdown fences, snake_case, câmpuri lipsă).
 
 ### Pasul 5.6 — Vizualizare interviu
 
-Poți revizui oricând un interviu complet:
+Poți revizui oricând un interviu complet (inclusiv dacă repornești aplicația — datele sunt în PostgreSQL):
 
 ```
 GET /api/v1/interview/{id}
@@ -193,21 +201,20 @@ GET /api/v1/interview/{id}
 # Oprește toate containerele Docker
 docker compose down
 
-# Sau oprește doar Ollama
-docker compose stop ollama
+# Oprește doar backend-ul: Ctrl+C în terminalul unde rulează
 ```
 
-**Notă:** Modelul LLM rămâne descărcat pe disc (în volumul Docker `ollama_data`). Nu trebuie descărcat din nou la repornire.
+**Notă:** Datele din PostgreSQL și modelul LLM rămân pe disc (în volumele Docker `postgres_data` și `ollama_data`). La repornire nu se pierde nimic.
 
 ---
 
-## 7. Troubleshooting (probleme frecvente)
+## 7. Troubleshooting
 
 ### „Docker Desktop is not running"
-→ Deschide Docker Desktop din Start Menu și așteaptă până se inițializează (30-60 secunde).
+→ Deschide Docker Desktop din Start Menu și așteaptă 30-60 secunde să se inițializeze.
 
 ### „Cannot connect to Ollama" / „Connection refused"
-→ Verifică dacă containerul Ollama rulează:
+→ Verifică dacă containerul rulează:
 ```bash
 docker ps --filter name=intervue-ollama
 ```
@@ -220,23 +227,22 @@ docker exec intervue-ollama ollama pull llama3:8b-instruct-q4_0
 ```
 
 ### Build-ul dă erori
-→ Verifică versiunea .NET: `dotnet --version` (trebuie 10.x.x)
-→ Restaurează pachetele: `dotnet restore Intervue.sln`
+→ Verifică `dotnet --version` (trebuie 10.x.x)
+→ Rulează `dotnet restore Intervue.sln`
 
 ### Răspunsurile de la LLM sunt foarte lente
-→ Normal — pe CPU, un răspuns poate dura 1-5 minute pentru operații complexe (parsare CV, feedback). Cu GPU NVIDIA, durează 10-30 secunde.
-→ HttpClient-ul are timeout de **10 minute**, suficient și pentru hardware modest.
-→ Verifică că Docker Desktop are access la GPU: Settings → Resources → GPU.
+→ Normal pe CPU — un răspuns complex poate dura 1-5 minute. Cu GPU NVIDIA durează 10-30 secunde.
+→ HttpClient-ul are timeout de 10 minute, e suficient și pentru hardware modest.
+→ În Docker Desktop: Settings → Resources → GPU — verifică că Docker are acces la GPU.
 
-### Feedback-ul dă eroare de parsare (500 — Feedback.ParseFailed)
-→ Uneori LLM-ul returnează JSON într-un format ușor diferit. Parser-ul tratează automat:
-  - Markdown code fences (`json ... `)
-  - snake_case în loc de camelCase
-  - Câmpuri lipsă (se completează cu defaults)
-→ Dacă tot dă eroare, reîncearcă — LLM-ul poate genera alt format la următoarea cerere.
+### Eroare la feedback (500)
+→ Uneori LLM-ul returnează JSON într-un format neașteptat. Parser-ul tratează majoritatea variațiilor (markdown fences, snake_case, câmpuri lipsă), dar dacă tot dă eroare, dă retry — la următoarea generare de obicei merge altfel.
 
-### Portul 5000 este ocupat
-→ Oprește procesul care folosește portul sau modifică portul în `docker-compose.yml` (linia `ports`).
+### Portul 5000 e ocupat
+→ Oprește procesul care-l folosește sau modifică portul în `Properties/launchSettings.json`.
+
+### pgAdmin nu vede tabelele
+→ Tabelele se creează la prima pornire a API-ului (prin EF Core migration). Asigură-te că ai rulat `dotnet run --project src/Intervue.Api` cel puțin o dată.
 
 ---
 
@@ -245,15 +251,15 @@ docker exec intervue-ollama ollama pull llama3:8b-instruct-q4_0
 ```
 Intervue/
 ├── src/
-│   ├── Intervue.Domain/            # Entități, reguli de business
-│   ├── Intervue.Application/       # Comenzi, query-uri, validări
-│   ├── Intervue.Infrastructure/    # Ollama, PdfPig, SHA-256
-│   └── Intervue.Api/              # Controllere HTTP, Swagger
+│   ├── Intervue.Domain/            # Entități, reguli de business, value objects
+│   ├── Intervue.Application/       # Commands, queries, validări, DTOs
+│   ├── Intervue.Infrastructure/    # EF Core, Ollama, PdfPig, SHA-256, repositories
+│   └── Intervue.Api/              # Controllers HTTP, Swagger, configurare
 ├── tests/
-│   ├── Intervue.UnitTests/        # Teste unitare
+│   ├── Intervue.UnitTests/        # Teste unitare (xUnit + Moq)
 │   └── Intervue.IntegrationTests/ # Teste de integrare
-├── docker-compose.yml                   # Orchestrare containere
-├── README.md                            # Descriere proiect + setup
-├── USAGE.md                             # Acest fișier
-└── .gitignore                           # Fișiere excluse din Git
+├── docker-compose.yml             # Ollama + PostgreSQL + pgAdmin
+├── README.md                      # Descriere proiect + setup
+├── USAGE.md                       # Acest fișier
+└── .gitignore
 ```

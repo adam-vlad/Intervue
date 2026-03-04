@@ -10,6 +10,9 @@ public class Technology : Entity<Guid>
     public string Name { get; private set; }
     public int YearsOfExperience { get; private set; }
 
+    // Required by EF Core for database loading
+    private Technology() : base(default!) { Name = default!; }
+
     private Technology(Guid id, string name, int yearsOfExperience) : base(id)
     {
         Name = name;

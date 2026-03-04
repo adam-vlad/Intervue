@@ -1,8 +1,8 @@
 # Docker Compose — Intervue (AI Interview Coach)
 # Orchestrates all containers:
-# 1. ollama — the local LLM server
-# 2. backend — the ASP.NET Core Web API
-# 3. frontend — React/Next.js (will be added in weeks 8-9)
+# 1. ollama    — the local LLM server
+# 2. postgres  — PostgreSQL database
+# 3. pgadmin   — database viewer in browser (http://localhost:5050)
 
 services:
   # ── Ollama — local LLM server ──────────────────────────────────────
@@ -22,21 +22,37 @@ services:
               capabilities: [gpu]
     restart: unless-stopped
 
-  # ── Backend — ASP.NET Core Web API ─────────────────────────────────
-  backend:
-    build:
-      context: .
-      dockerfile: src/Intervue.Api/Dockerfile
-    container_name: intervue-backend
+  # ── PostgreSQL — relational database ───────────────────────────────
+  postgres:
+    image: postgres:17
+    container_name: intervue-postgres
     ports:
-      - "5000:8080"
+      - "5432:5432"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - Ollama__BaseUrl=http://ollama:11434
-      - Ollama__Model=llama3:8b-instruct-q4_0
+      POSTGRES_USER: intervue
+      POSTGRES_PASSWORD: intervue_dev
+      POSTGRES_DB: intervue_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ── pgAdmin — database viewer in browser ───────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: intervue-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@intervue.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
-      - ollama
+      - postgres
     restart: unless-stopped
 
 volumes:
   ollama_data:
+  postgres_data:
+  pgadmin_data:

@@ -18,6 +18,9 @@ public class Interview : AggregateRoot<Guid>
     private readonly List<InterviewMessage> _messages = new();
     public IReadOnlyList<InterviewMessage> Messages => _messages.AsReadOnly();
 
+    // Required by EF Core for database loading
+    private Interview() : base(default!) { }
+
     private Interview(Guid id, Guid cvProfileId) : base(id)
     {
         CvProfileId = cvProfileId;

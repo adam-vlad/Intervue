@@ -18,6 +18,9 @@ public class FeedbackReport : Entity<Guid>
 
     private readonly List<InterviewScore> _categoryScores = new();
 
+    // Required by EF Core for database loading
+    private FeedbackReport() : base(default!) { Strengths = default!; Weaknesses = default!; Suggestions = default!; }
+
     private FeedbackReport(
         Guid id,
         int overallScore,

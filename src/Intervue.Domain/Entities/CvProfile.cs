@@ -26,6 +26,9 @@ public class CvProfile : AggregateRoot<Guid>
     public IReadOnlyList<Experience> Experiences => _experiences.AsReadOnly();
     public IReadOnlyList<Project> Projects => _projects.AsReadOnly();
 
+    // Required by EF Core for database loading
+    private CvProfile() : base(default!) { RawText = default!; HashedPersonalData = default!; }
+
     private CvProfile(Guid id, string rawText, HashedPersonalData hashedPersonalData)
         : base(id)
     {

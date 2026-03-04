@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Intervue.Application.Common.Interfaces;
 using Intervue.Domain.Repositories;
 using Intervue.Infrastructure.Configuration;
@@ -18,6 +20,15 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Register PostgreSQL database via EF Core
+        services.AddDbContext<IntervueDbContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
+                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
+            );
+
+        // Enable dynamic JSON serialization for Npgsql (needed for jsonb columns like CategoryScores)
+        NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
+
         // Bind Ollama settings from appsettings.json
         services.Configure<OllamaSettings>(
             configuration.GetSection(OllamaSettings.SectionName));
@@ -33,9 +44,9 @@ public static class DependencyInjection
         services.AddSingleton<IPdfExtractor, PdfPigExtractor>();
         services.AddSingleton<IHashingService, Sha256HashingService>();
 
-        // Register repositories as Singleton (in-memory, data must persist across requests)
-        services.AddSingleton<ICvProfileRepository, InMemoryCvProfileRepository>();
-        services.AddSingleton<IInterviewRepository, InMemoryInterviewRepository>();
+        // Register repositories (backed by PostgreSQL via EF Core)
+        services.AddScoped<ICvProfileRepository, EfCvProfileRepository>();
+        services.AddScoped<IInterviewRepository, EfInterviewRepository>();
 
         return services;
     }
