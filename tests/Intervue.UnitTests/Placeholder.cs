@@ -1,1 +1,1 @@
-// Placeholder — unit tests will be added in Week 10.
+// Placeholder — unit tests are in the Prompts/ folder.

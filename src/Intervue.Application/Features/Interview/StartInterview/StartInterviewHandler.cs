@@ -1,6 +1,7 @@
 using MediatR;
 using Intervue.Application.Common;
 using Intervue.Application.Common.Interfaces;
+using Intervue.Application.Common.Prompts;
 using Intervue.Application.Features.DTOs;
 using Intervue.Domain.Repositories;
 
@@ -53,9 +54,12 @@ public class StartInterviewHandler : IRequestHandler<StartInterviewCommand, Resu
             ? string.Join("; ", cvProfile.Experiences.Select(e => $"{e.Role} at {e.Company}"))
             : "not specified";
 
+        var systemPrompt = new PromptBuilder()
+            .WithPersona("You are a professional technical interviewer conducting a mock interview. Be friendly but thorough.")
+            .WithRules(InterviewRules.GetRulesFor(cvProfile.DifficultyLevel))
+            .Build();
+
         var prompt = $"""
-            You are a technical interviewer conducting a mock interview.
-            
             Candidate profile:
             - Difficulty level: {cvProfile.DifficultyLevel}
             - Technologies: {techSummary}
@@ -74,13 +78,15 @@ public class StartInterviewHandler : IRequestHandler<StartInterviewCommand, Resu
 
         var messages = new List<LlmMessage>
         {
-            new("system", "You are a professional technical interviewer. Be friendly but thorough."),
+            new("system", systemPrompt),
             new("user", prompt)
         };
 
         var firstQuestion = await _llmClient.ChatAsync(messages, cancellationToken);
 
         // Step 4: Start the interview with the first question
+        var promptProfile = $"{cvProfile.DifficultyLevel}_v1";
+        interview.SetPromptProfile(promptProfile);
         interview.Start(firstQuestion);
 
         // Step 5: Save to repository

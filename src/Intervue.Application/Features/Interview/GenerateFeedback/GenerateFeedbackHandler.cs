@@ -2,6 +2,7 @@ using System.Text.Json;
 using MediatR;
 using Intervue.Application.Common;
 using Intervue.Application.Common.Interfaces;
+using Intervue.Application.Common.Prompts;
 using Intervue.Application.Features.DTOs;
 using Intervue.Domain.Entities;
 using Intervue.Domain.Enums;
@@ -51,9 +52,14 @@ public class GenerateFeedbackHandler : IRequestHandler<GenerateFeedbackCommand, 
         var transcript = string.Join("\n\n", interview.Messages.Select(m =>
             $"{(m.Role == MessageRole.Interviewer ? "Interviewer" : "Candidate")}: {m.Content}"));
 
+        var systemPrompt = new PromptBuilder()
+            .WithPersona("You are an expert interview evaluator. Analyze the interview transcript and provide a detailed feedback report.")
+            .WithRules(FeedbackRules.All)
+            .Build();
+
         var messages = new List<LlmMessage>
         {
-            new("system", FeedbackPrompt),
+            new("system", systemPrompt),
             new("user", $"Here is the interview transcript:\n\n{transcript}")
         };
 
@@ -150,24 +156,6 @@ public class GenerateFeedbackHandler : IRequestHandler<GenerateFeedbackCommand, 
             return null;
         }
     }
-
-    private const string FeedbackPrompt = """
-        You are an expert interview evaluator. Analyze the interview transcript and provide a detailed feedback report.
-        
-        You MUST respond with ONLY a valid JSON object. No markdown, no explanation, no text before or after.
-        Use this EXACT structure with these EXACT property names:
-        
-        {"overallScore": 75, "categoryScores": [{"category": "Technical Knowledge", "score": 70}, {"category": "Problem Solving", "score": 75}, {"category": "Communication", "score": 80}, {"category": "Experience Relevance", "score": 72}], "strengths": "text here", "weaknesses": "text here", "suggestions": "text here"}
-        
-        Property rules:
-        - overallScore: integer 0-100
-        - categoryScores: array with exactly 4 objects, each with "category" (string) and "score" (integer 0-100)
-        - strengths: 2-3 sentences about what the candidate did well
-        - weaknesses: 2-3 sentences about areas for improvement  
-        - suggestions: 2-3 concrete suggestions for the candidate
-        
-        IMPORTANT: Respond ONLY with the JSON object. No other text at all.
-        """;
 
     private class ParsedFeedback
     {

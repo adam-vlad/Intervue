@@ -21,6 +21,10 @@ public class InterviewConfiguration : IEntityTypeConfiguration<Interview>
         builder.Property(i => i.Status)
             .HasConversion<int>()
             .IsRequired();
+        builder.Property(i => i.PromptProfile)
+            .HasMaxLength(100)
+            .HasDefaultValue(string.Empty)
+            .IsRequired();
         builder.Property(i => i.StartedAt).IsRequired();
         builder.Property(i => i.CompletedAt);
 

@@ -27,6 +27,7 @@ public static class MappingExtensions
             interview.Id,
             interview.CvProfileId,
             interview.Status,
+            interview.PromptProfile,
             interview.StartedAt,
             interview.CompletedAt,
             interview.Messages.Select(m => m.ToDto()).ToList(),

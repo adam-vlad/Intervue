@@ -1,6 +1,7 @@
 using MediatR;
 using Intervue.Application.Common;
 using Intervue.Application.Common.Interfaces;
+using Intervue.Application.Common.Prompts;
 using Intervue.Application.Features.DTOs;
 using Intervue.Domain.Enums;
 using Intervue.Domain.Repositories;
@@ -48,20 +49,16 @@ public class SendMessageHandler : IRequestHandler<SendMessageCommand, Result<Int
         // Step 3: Build conversation history for the LLM
         var cvProfile = await _cvProfileRepository.GetByIdAsync(interview.CvProfileId, cancellationToken);
 
+        var difficultyLevel = cvProfile?.DifficultyLevel ?? DifficultyLevel.Junior;
+
+        var systemPrompt = new PromptBuilder()
+            .WithPersona($"You are a professional technical interviewer conducting a mock interview. The candidate's level is {difficultyLevel}.")
+            .WithRules(InterviewRules.GetRulesFor(difficultyLevel))
+            .Build();
+
         var llmMessages = new List<LlmMessage>
         {
-            new("system", $"""
-                You are a professional technical interviewer conducting a mock interview.
-                The candidate's level is {cvProfile?.DifficultyLevel ?? DifficultyLevel.Junior}.
-                
-                Rules:
-                - Ask focused, follow-up questions based on the candidate's answers
-                - If the answer is vague, ask for specific examples or deeper explanation
-                - If the answer is good, move to a related but different topic
-                - Keep questions concise and clear
-                - Be professional and encouraging
-                - Respond with ONLY your next question, nothing else
-                """)
+            new("system", systemPrompt)
         };
 
         // Add the full conversation history so the LLM has context

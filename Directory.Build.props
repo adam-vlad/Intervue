@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Suppress MSB3277: version conflict warnings caused by Npgsql 10.0.0 depending on EF Core 10.0.0
+         while EF Core Design 10.0.3 pulls EF Core 10.0.3. NuGet resolves to the higher version safely. -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+</Project>

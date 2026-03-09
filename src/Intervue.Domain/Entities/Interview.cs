@@ -11,6 +11,7 @@ public class Interview : AggregateRoot<Guid>
 {
     public Guid CvProfileId { get; private set; }
     public InterviewStatus Status { get; private set; }
+    public string PromptProfile { get; private set; }
     public FeedbackReport? FeedbackReport { get; private set; }
     public DateTime StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
@@ -19,12 +20,13 @@ public class Interview : AggregateRoot<Guid>
     public IReadOnlyList<InterviewMessage> Messages => _messages.AsReadOnly();
 
     // Required by EF Core for database loading
-    private Interview() : base(default!) { }
+    private Interview() : base(default!) { PromptProfile = string.Empty; }
 
     private Interview(Guid id, Guid cvProfileId) : base(id)
     {
         CvProfileId = cvProfileId;
         Status = InterviewStatus.NotStarted;
+        PromptProfile = string.Empty;
         StartedAt = DateTime.UtcNow;
     }
 
@@ -34,6 +36,13 @@ public class Interview : AggregateRoot<Guid>
         Guard.AgainstEmpty(cvProfileId, nameof(cvProfileId));
 
         return new Interview(Guid.NewGuid(), cvProfileId);
+    }
+
+    /// <summary>Sets the prompt profile identifier (e.g. "Junior_v1", "Senior_v1").</summary>
+    public void SetPromptProfile(string promptProfile)
+    {
+        Guard.AgainstNullOrWhiteSpace(promptProfile, nameof(promptProfile));
+        PromptProfile = promptProfile;
     }
 
     /// <summary>Starts the interview with the first AI question. Transitions NotStarted → InProgress.</summary>

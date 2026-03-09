@@ -9,6 +9,7 @@ public record InterviewDto(
     Guid Id,
     Guid CvProfileId,
     InterviewStatus Status,
+    string PromptProfile,
     DateTime StartedAt,
     DateTime? CompletedAt,
     List<InterviewMessageDto> Messages,

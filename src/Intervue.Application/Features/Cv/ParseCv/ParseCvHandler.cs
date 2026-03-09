@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Intervue.Application.Common;
 using Intervue.Application.Common.Interfaces;
+using Intervue.Application.Common.Prompts;
 using Intervue.Application.Features.DTOs;
 using Intervue.Domain.Entities;
 using Intervue.Domain.Enums;
@@ -43,10 +44,15 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
                 Error.NotFound("Cv.NotFound", $"CV profile with id '{request.CvProfileId}' was not found."));
         }
 
-        // Step 2: Build the prompt for the LLM
+        // Step 2: Build the prompt for the LLM using PromptBuilder
+        var systemPrompt = new PromptBuilder()
+            .WithPersona(CvParsingPersona)
+            .WithRules(CvParsingRules.All)
+            .Build();
+
         var messages = new List<LlmMessage>
         {
-            new("system", CvParsingPrompt),
+            new("system", systemPrompt),
             new("user", cvProfile.RawText)
         };
 
@@ -135,12 +141,12 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         }
     }
 
-    // ── Prompt engineering — this is what tells the LLM how to parse the CV ───
+    // ── Persona used by PromptBuilder — the rules come from CvParsingRules ───
 
-    private const string CvParsingPrompt = """
+    private const string CvParsingPersona = """
         You are a CV parser. Analyze the following CV text and extract structured information.
         
-        Return ONLY a valid JSON object with this exact structure (no markdown, no explanation):
+        Return a JSON object with this structure:
         {
           "difficultyLevel": "Junior" or "Mid" or "Senior",
           "education": "degree and university or null",
@@ -154,12 +160,6 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
             { "name": "project name", "description": "brief description or null", "technologiesUsed": ["tech1", "tech2"] }
           ]
         }
-        
-        Rules:
-        - Estimate yearsOfExperience based on context if not explicitly stated (minimum 1)
-        - Estimate durationMonths from dates if available
-        - Set difficultyLevel based on total experience: <2 years = Junior, 2-5 years = Mid, >5 years = Senior
-        - Return valid JSON only, no extra text
         """;
 
     // ── Internal DTO for deserializing the LLM's JSON response ───
