@@ -55,6 +55,22 @@ public class CvEndpointsTests : IClassFixture<IntervueWebApplicationFactory>
     }
 
     [Fact]
+    public async Task Upload_WithInvalidPdfBytes_Returns400BadRequest()
+    {
+        // Arrange
+        using var content = new MultipartFormDataContent();
+        content.Add(new ByteArrayContent(Encoding.ASCII.GetBytes("not a real pdf")), "file", "broken.pdf");
+
+        // Act
+        var response = await _client.PostAsync("/api/v1/cv/upload", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("Cv.InvalidPdf");
+    }
+
+    [Fact]
     public async Task Parse_WithNonExistentCvProfileId_Returns404NotFound()
     {
         // Arrange

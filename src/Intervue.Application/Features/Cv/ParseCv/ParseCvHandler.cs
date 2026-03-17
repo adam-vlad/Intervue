@@ -98,7 +98,7 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         return Result<CvProfileDto>.Ok(cvProfile.ToDto());
     }
 
-    private static ParsedCvData? ParseLlmResponse(string llmResponse)
+    private ParsedCvData? ParseLlmResponse(string llmResponse)
     {
         try
         {
@@ -135,8 +135,14 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
             });
         }
-        catch
+        catch (JsonException ex)
         {
+            _logger.LogWarning(ex, "LLM response JSON parsing failed in ParseCvHandler.");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unexpected error while parsing LLM response in ParseCvHandler.");
             return null;
         }
     }

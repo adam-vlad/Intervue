@@ -13,4 +13,10 @@ public class OllamaSettings
 
     /// <summary>Model name to use (e.g., llama3:8b-instruct-q4_0).</summary>
     public string Model { get; set; } = "llama3:8b-instruct-q4_0";
+
+    /// <summary>How many retries to perform after the initial failed attempt.</summary>
+    public int RetryCount { get; set; } = 2;
+
+    /// <summary>Base delay (ms) between retries. Delay grows with each attempt.</summary>
+    public int RetryDelayMs { get; set; } = 700;
 }

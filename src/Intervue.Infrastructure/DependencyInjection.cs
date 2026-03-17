@@ -20,14 +20,21 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
+
+        // Build Npgsql data source once and enable JSON mappings there (replacement for obsolete GlobalTypeMapper)
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+        dataSourceBuilder.EnableDynamicJson();
+        var dataSource = dataSourceBuilder.Build();
+
+        services.AddSingleton(dataSource);
+
         // Register PostgreSQL database via EF Core
         services.AddDbContext<IntervueDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
+            options.UseNpgsql(dataSource,
                 npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
             );
-
-        // Enable dynamic JSON serialization for Npgsql (needed for jsonb columns like CategoryScores)
-        NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
 
         // Bind Ollama settings from appsettings.json
         services.Configure<OllamaSettings>(

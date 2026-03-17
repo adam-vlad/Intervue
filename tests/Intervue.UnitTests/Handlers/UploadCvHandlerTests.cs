@@ -83,4 +83,20 @@ public class UploadCvHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Errors.Should().ContainSingle(e => e.Code == "Cv.EmptyText");
     }
+
+    [Fact]
+    public async Task Handle_WhenPdfExtractorThrows_ReturnsInvalidPdfValidationError()
+    {
+        // Arrange
+        var command = new UploadCvCommand(new byte[] { 1, 2, 3 });
+        _pdfExtractor.Setup(x => x.ExtractText(It.IsAny<byte[]>())).Throws(new InvalidDataException("Invalid PDF"));
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Errors.Should().ContainSingle(e => e.Code == "Cv.InvalidPdf");
+        _cvProfileRepository.Verify(x => x.AddAsync(It.IsAny<CvProfile>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

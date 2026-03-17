@@ -33,8 +33,17 @@ public class UploadCvHandler : IRequestHandler<UploadCvCommand, Result<Guid>>
 
     public async Task<Result<Guid>> Handle(UploadCvCommand request, CancellationToken cancellationToken)
     {
-        // Step 1: Extract text from PDF
-        var rawText = _pdfExtractor.ExtractText(request.PdfBytes);
+        string rawText;
+        try
+        {
+            // Step 1: Extract text from PDF
+            rawText = _pdfExtractor.ExtractText(request.PdfBytes);
+        }
+        catch
+        {
+            return Result<Guid>.Fail(
+                Error.Validation("Cv.InvalidPdf", "The uploaded file is not a valid or readable PDF."));
+        }
 
         if (string.IsNullOrWhiteSpace(rawText))
         {

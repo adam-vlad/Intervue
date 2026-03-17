@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Intervue.Application.Common.Interfaces;
 using Intervue.Application.Features.DTOs;
@@ -18,13 +19,15 @@ public class GenerateFeedbackHandlerTests
 {
     private readonly Mock<IInterviewRepository> _interviewRepository = new();
     private readonly Mock<ILlmClient> _llmClient = new();
+    private readonly Mock<ILogger<GenerateFeedbackHandler>> _logger = new();
     private readonly GenerateFeedbackHandler _sut;
 
     public GenerateFeedbackHandlerTests()
     {
         _sut = new GenerateFeedbackHandler(
             _interviewRepository.Object,
-            _llmClient.Object);
+            _llmClient.Object,
+            _logger.Object);
     }
 
     [Fact]
@@ -197,6 +200,48 @@ public class GenerateFeedbackHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.Value!.CategoryScores.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public async Task Handle_WhenLlmReturnsSnakeCaseFields_ParsesSuccessfully()
+    {
+        // Arrange
+        var interviewId = Guid.NewGuid();
+        var command = new GenerateFeedbackCommand(interviewId);
+        var interview = CreateInterviewWithMessages(3);
+
+        _interviewRepository.Setup(x => x.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(interview);
+
+        var llmResponse = """
+            {
+                "overall_score": 76,
+                "category_scores": [
+                    { "category": "Technical Knowledge", "score": 74 },
+                    { "category": "Problem Solving", "score": 77 },
+                    { "category": "Communication", "score": 79 },
+                    { "category": "Experience Relevance", "score": 74 }
+                ],
+                "strengths": "Good communication and steady reasoning.",
+                "weaknesses": "Needs deeper implementation details.",
+                "suggestions": "Practice discussing trade-offs with concrete examples."
+            }
+            """;
+
+        _llmClient.Setup(x => x.ChatAsync(It.IsAny<IReadOnlyList<LlmMessage>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(llmResponse);
+
+        _interviewRepository.Setup(x => x.UpdateAsync(It.IsAny<Interview>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.OverallScore.Should().Be(76);
+        result.Value.CategoryScores.Should().HaveCount(4);
     }
 
     // ── Helpers ───────────────────────────────────────────────────

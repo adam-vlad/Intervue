@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Intervue.Application.Common;
 using Intervue.Application.Common.Interfaces;
 using Intervue.Application.Common.Prompts;
@@ -24,11 +25,16 @@ public class GenerateFeedbackHandler : IRequestHandler<GenerateFeedbackCommand, 
 {
     private readonly IInterviewRepository _interviewRepository;
     private readonly ILlmClient _llmClient;
+    private readonly ILogger<GenerateFeedbackHandler> _logger;
 
-    public GenerateFeedbackHandler(IInterviewRepository interviewRepository, ILlmClient llmClient)
+    public GenerateFeedbackHandler(
+        IInterviewRepository interviewRepository,
+        ILlmClient llmClient,
+        ILogger<GenerateFeedbackHandler> logger)
     {
         _interviewRepository = interviewRepository;
         _llmClient = llmClient;
+        _logger = logger;
     }
 
     public async Task<Result<FeedbackReportDto>> Handle(GenerateFeedbackCommand request, CancellationToken cancellationToken)
@@ -97,7 +103,7 @@ public class GenerateFeedbackHandler : IRequestHandler<GenerateFeedbackCommand, 
         return Result<FeedbackReportDto>.Ok(feedbackReport.ToDto());
     }
 
-    private static ParsedFeedback? ParseFeedbackResponse(string llmResponse)
+    private ParsedFeedback? ParseFeedbackResponse(string llmResponse)
     {
         try
         {
@@ -151,8 +157,14 @@ public class GenerateFeedbackHandler : IRequestHandler<GenerateFeedbackCommand, 
 
             return result;
         }
-        catch
+        catch (JsonException ex)
         {
+            _logger.LogWarning(ex, "LLM response JSON parsing failed in GenerateFeedbackHandler.");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unexpected error while parsing LLM response in GenerateFeedbackHandler.");
             return null;
         }
     }

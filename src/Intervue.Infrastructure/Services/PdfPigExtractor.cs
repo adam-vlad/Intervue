@@ -11,12 +11,19 @@ public class PdfPigExtractor : IPdfExtractor
 {
     public string ExtractText(byte[] pdfBytes)
     {
-        using var document = PdfDocument.Open(pdfBytes);
+        try
+        {
+            using var document = PdfDocument.Open(pdfBytes);
 
-        // Extract text from each page and join with newlines
-        var pages = document.GetPages();
-        var textParts = pages.Select(page => page.Text);
+            // Extract text from each page and join with newlines
+            var pages = document.GetPages();
+            var textParts = pages.Select(page => page.Text);
 
-        return string.Join(Environment.NewLine, textParts);
+            return string.Join(Environment.NewLine, textParts);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidDataException("Unable to extract text from PDF.", ex);
+        }
     }
 }

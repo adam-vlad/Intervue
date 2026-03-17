@@ -27,7 +27,6 @@ public class OllamaClient : ILlmClient
         IReadOnlyList<LlmMessage> messages,
         CancellationToken cancellationToken = default)
     {
-        // Build the request body that Ollama expects
         var requestBody = new OllamaChatRequest
         {
             Model = _settings.Model,
@@ -36,27 +35,53 @@ public class OllamaClient : ILlmClient
                 Role = m.Role,
                 Content = m.Content
             }).ToList(),
-            Stream = false // We want the full response at once, not streamed
+            Stream = false
         };
 
-        var json = JsonSerializer.Serialize(requestBody, new JsonSerializerOptions
+        var maxAttempts = Math.Max(1, _settings.RetryCount + 1);
+        Exception? lastException = null;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            try
+            {
+                var json = JsonSerializer.Serialize(requestBody, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
 
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var response = await _httpClient.PostAsync("/api/chat", content, cancellationToken);
+                response.EnsureSuccessStatusCode();
 
-        var response = await _httpClient.PostAsync("/api/chat", content, cancellationToken);
-        response.EnsureSuccessStatusCode();
+                var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
+                var chatResponse = JsonSerializer.Deserialize<OllamaChatResponse>(responseJson, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
 
-        var chatResponse = JsonSerializer.Deserialize<OllamaChatResponse>(responseJson, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+                return chatResponse?.Message?.Content ?? string.Empty;
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested && attempt < maxAttempts)
+            {
+                lastException = ex;
+            }
+            catch (HttpRequestException ex) when (attempt < maxAttempts)
+            {
+                lastException = ex;
+            }
 
-        return chatResponse?.Message?.Content ?? string.Empty;
+            if (attempt < maxAttempts)
+            {
+                var delayMs = Math.Max(100, _settings.RetryDelayMs) * attempt;
+                await Task.Delay(delayMs, cancellationToken);
+            }
+        }
+
+        throw new HttpRequestException(
+            $"Failed to communicate with Ollama after {maxAttempts} attempt(s).",
+            lastException);
     }
 
     // ── Internal DTOs for Ollama API ────────────────────────────────
