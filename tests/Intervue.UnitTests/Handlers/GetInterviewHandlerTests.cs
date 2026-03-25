@@ -6,6 +6,8 @@ using Intervue.Application.Features.Interview.GetInterview;
 using Intervue.Domain.Entities;
 using Intervue.Domain.Enums;
 using Intervue.Domain.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Intervue.UnitTests.Handlers;
 
@@ -20,7 +22,9 @@ public class GetInterviewHandlerTests
 
     public GetInterviewHandlerTests()
     {
-        _sut = new GetInterviewHandler(_interviewRepository.Object);
+        _sut = new GetInterviewHandler(
+            _interviewRepository.Object,
+            NullLoggerFactory.Instance.CreateLogger<GetInterviewHandler>());
     }
 
     [Fact]

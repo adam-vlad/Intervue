@@ -1,8 +1,7 @@
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Intervue.Application.Common;
+using Intervue.Application.Common.Constants;
 using Intervue.Application.Common.Interfaces;
 using Intervue.Application.Common.Prompts;
 using Intervue.Application.Features.DTOs;
@@ -41,7 +40,7 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         if (cvProfile is null)
         {
             return Result<CvProfileDto>.Fail(
-                Error.NotFound("Cv.NotFound", $"CV profile with id '{request.CvProfileId}' was not found."));
+                Error.NotFound(ErrorCodes.CvNotFound, $"CV profile with id '{request.CvProfileId}' was not found."));
         }
 
         // Step 2: Build the prompt for the LLM using PromptBuilder
@@ -52,8 +51,8 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
 
         var messages = new List<LlmMessage>
         {
-            new("system", systemPrompt),
-            new("user", cvProfile.RawText)
+            new(LlmRoles.System, systemPrompt),
+            new(LlmRoles.User, cvProfile.RawText)
         };
 
         // Step 3: Call the LLM
@@ -62,13 +61,13 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         // Step 4: Parse the JSON response from the LLM
         _logger.LogInformation("Raw LLM response for CV parsing:\n{LlmResponse}", llmResponse);
 
-        var parsedCv = ParseLlmResponse(llmResponse);
+        var parsedCv = LlmJsonParser.TryParse<ParsedCvData>(llmResponse, _logger);
 
         if (parsedCv is null)
         {
             _logger.LogError("Failed to parse LLM response into structured CV data. Raw response:\n{LlmResponse}", llmResponse);
             return Result<CvProfileDto>.Fail(
-                Error.Failure("Cv.ParseFailed", "Failed to parse the LLM response into structured CV data."));
+                Error.Failure(ErrorCodes.CvParseFailed, "Failed to parse the LLM response into structured CV data."));
         }
 
         // Step 5: Convert parsed data to domain entities
@@ -98,60 +97,11 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         return Result<CvProfileDto>.Ok(cvProfile.ToDto());
     }
 
-    private ParsedCvData? ParseLlmResponse(string llmResponse)
-    {
-        try
-        {
-            var json = llmResponse;
-
-            // Strip markdown code fences: ```json ... ``` or ``` ... ```
-            var fenceMatch = Regex.Match(json, @"```(?:json)?\s*\n?(.*?)\n?\s*```", RegexOptions.Singleline);
-            if (fenceMatch.Success)
-            {
-                json = fenceMatch.Groups[1].Value;
-            }
-
-            // Extract the outermost JSON object
-            var jsonStart = json.IndexOf('{');
-            var jsonEnd = json.LastIndexOf('}');
-
-            if (jsonStart >= 0 && jsonEnd > jsonStart)
-            {
-                json = json.Substring(jsonStart, jsonEnd - jsonStart + 1);
-            }
-
-            // Normalize snake_case to camelCase for common fields
-            json = json.Replace("years_of_experience", "yearsOfExperience")
-                       .Replace("difficulty_level", "difficultyLevel")
-                       .Replace("duration_months", "durationMonths")
-                       .Replace("technologies_used", "technologiesUsed");
-
-            // Fix quoted numbers: "yearsOfExperience": "3" → "yearsOfExperience": 3
-            json = Regex.Replace(json, @"""(yearsOfExperience|durationMonths)"":\s*""(\d+)""", "\"$1\": $2");
-
-            return JsonSerializer.Deserialize<ParsedCvData>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
-            });
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogWarning(ex, "LLM response JSON parsing failed in ParseCvHandler.");
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Unexpected error while parsing LLM response in ParseCvHandler.");
-            return null;
-        }
-    }
-
     // ── Persona used by PromptBuilder — the rules come from CvParsingRules ───
 
     private const string CvParsingPersona = """
         You are a CV parser. Analyze the following CV text and extract structured information.
-        
+
         Return a JSON object with this structure:
         {
           "difficultyLevel": "Junior" or "Mid" or "Senior",
@@ -168,9 +118,9 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         }
         """;
 
-    // ── Internal DTO for deserializing the LLM's JSON response ───
+    // ── Internal DTOs for deserializing the LLM's JSON response ───
 
-    private class ParsedCvData
+    internal class ParsedCvData
     {
         public string DifficultyLevel { get; set; } = "Junior";
         public string? Education { get; set; }
@@ -179,13 +129,13 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         public List<ParsedProject> Projects { get; set; } = new();
     }
 
-    private class ParsedTechnology
+    internal class ParsedTechnology
     {
         public string Name { get; set; } = string.Empty;
         public int YearsOfExperience { get; set; } = 1;
     }
 
-    private class ParsedExperience
+    internal class ParsedExperience
     {
         public string Role { get; set; } = string.Empty;
         public string Company { get; set; } = string.Empty;
@@ -193,7 +143,7 @@ public class ParseCvHandler : IRequestHandler<ParseCvCommand, Result<CvProfileDt
         public string? Description { get; set; }
     }
 
-    private class ParsedProject
+    internal class ParsedProject
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }

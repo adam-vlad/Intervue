@@ -13,6 +13,16 @@ namespace Intervue.Infrastructure.Services;
 /// </summary>
 public class OllamaClient : ILlmClient
 {
+    private static readonly JsonSerializerOptions SerializeOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    private static readonly JsonSerializerOptions DeserializeOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly HttpClient _httpClient;
     private readonly OllamaSettings _settings;
 
@@ -45,10 +55,7 @@ public class OllamaClient : ILlmClient
         {
             try
             {
-                var json = JsonSerializer.Serialize(requestBody, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                var json = JsonSerializer.Serialize(requestBody, SerializeOptions);
 
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
                 using var response = await _httpClient.PostAsync("/api/chat", content, cancellationToken);
@@ -56,10 +63,7 @@ public class OllamaClient : ILlmClient
 
                 var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
 
-                var chatResponse = JsonSerializer.Deserialize<OllamaChatResponse>(responseJson, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                var chatResponse = JsonSerializer.Deserialize<OllamaChatResponse>(responseJson, DeserializeOptions);
 
                 return chatResponse?.Message?.Content ?? string.Empty;
             }

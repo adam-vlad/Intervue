@@ -4,6 +4,8 @@ using Intervue.Application.Common.Interfaces;
 using Intervue.Application.Features.Cv.UploadCv;
 using Intervue.Domain.Entities;
 using Intervue.Domain.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Intervue.UnitTests.Handlers;
 
@@ -23,7 +25,8 @@ public class UploadCvHandlerTests
         _sut = new UploadCvHandler(
             _pdfExtractor.Object,
             _hashingService.Object,
-            _cvProfileRepository.Object);
+            _cvProfileRepository.Object,
+            NullLoggerFactory.Instance.CreateLogger<UploadCvHandler>());
     }
 
     [Fact]

@@ -1,5 +1,7 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Intervue.Application.Common;
+using Intervue.Application.Common.Constants;
 using Intervue.Application.Common.Interfaces;
 using Intervue.Application.Common.Prompts;
 using Intervue.Application.Features.DTOs;
@@ -20,15 +22,18 @@ public class StartInterviewHandler : IRequestHandler<StartInterviewCommand, Resu
     private readonly ICvProfileRepository _cvProfileRepository;
     private readonly IInterviewRepository _interviewRepository;
     private readonly ILlmClient _llmClient;
+    private readonly ILogger<StartInterviewHandler> _logger;
 
     public StartInterviewHandler(
         ICvProfileRepository cvProfileRepository,
         IInterviewRepository interviewRepository,
-        ILlmClient llmClient)
+        ILlmClient llmClient,
+        ILogger<StartInterviewHandler> logger)
     {
         _cvProfileRepository = cvProfileRepository;
         _interviewRepository = interviewRepository;
         _llmClient = llmClient;
+        _logger = logger;
     }
 
     public async Task<Result<InterviewDto>> Handle(StartInterviewCommand request, CancellationToken cancellationToken)
@@ -39,7 +44,7 @@ public class StartInterviewHandler : IRequestHandler<StartInterviewCommand, Resu
         if (cvProfile is null)
         {
             return Result<InterviewDto>.Fail(
-                Error.NotFound("Cv.NotFound", $"CV profile with id '{request.CvProfileId}' was not found."));
+                Error.NotFound(ErrorCodes.CvNotFound, $"CV profile with id '{request.CvProfileId}' was not found."));
         }
 
         // Step 2: Create the Interview entity
@@ -65,21 +70,21 @@ public class StartInterviewHandler : IRequestHandler<StartInterviewCommand, Resu
             - Technologies: {techSummary}
             - Experience: {expSummary}
             - Education: {cvProfile.Education ?? "not specified"}
-            
+
             Generate your first interview question. The question should:
             - Be appropriate for the candidate's level ({cvProfile.DifficultyLevel})
             - Focus on one of their main technologies
             - Be open-ended to encourage discussion
             - Be professional and welcoming
-            
+
             Start with a brief greeting, then ask your first question.
             Respond with ONLY the greeting and question, nothing else.
             """;
 
         var messages = new List<LlmMessage>
         {
-            new("system", systemPrompt),
-            new("user", prompt)
+            new(LlmRoles.System, systemPrompt),
+            new(LlmRoles.User, prompt)
         };
 
         var firstQuestion = await _llmClient.ChatAsync(messages, cancellationToken);
@@ -91,6 +96,9 @@ public class StartInterviewHandler : IRequestHandler<StartInterviewCommand, Resu
 
         // Step 5: Save to repository
         await _interviewRepository.AddAsync(interview, cancellationToken);
+
+        _logger.LogInformation("Interview {InterviewId} started for CV profile {CvProfileId} ({Level}).",
+            interview.Id, request.CvProfileId, cvProfile.DifficultyLevel);
 
         // Step 6: Return the DTO
         return Result<InterviewDto>.Created(interview.ToDto());

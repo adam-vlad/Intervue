@@ -8,6 +8,8 @@ using Intervue.Domain.Entities;
 using Intervue.Domain.Enums;
 using Intervue.Domain.Repositories;
 using Intervue.Domain.ValueObjects;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Intervue.UnitTests.Handlers;
 
@@ -27,7 +29,8 @@ public class StartInterviewHandlerTests
         _sut = new StartInterviewHandler(
             _cvProfileRepository.Object,
             _interviewRepository.Object,
-            _llmClient.Object);
+            _llmClient.Object,
+            NullLoggerFactory.Instance.CreateLogger<StartInterviewHandler>());
     }
 
     [Fact]

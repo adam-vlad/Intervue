@@ -96,6 +96,51 @@ public class CvEndpointsTests : IClassFixture<IntervueWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
+    // ── GET /api/v1/cv/{id} ─────────────────────────────────────────
+
+    [Fact]
+    public async Task GetCvProfile_WithNonExistentId_Returns404NotFound()
+    {
+        // Act
+        var response = await _client.GetAsync($"/api/v1/cv/{Guid.NewGuid()}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetCvProfile_WithEmptyId_Returns400BadRequest()
+    {
+        // Act
+        var response = await _client.GetAsync($"/api/v1/cv/{Guid.Empty}");
+
+        // Assert
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetCvProfile_AfterUpload_Returns200WithData()
+    {
+        // Arrange — upload a valid PDF first
+        var pdfContent = CreateMinimalPdf();
+        using var uploadContent = new MultipartFormDataContent();
+        uploadContent.Add(new ByteArrayContent(pdfContent), "file", "test.pdf");
+
+        var uploadResponse = await _client.PostAsync("/api/v1/cv/upload", uploadContent);
+        uploadResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var uploadBody = await uploadResponse.Content.ReadAsStringAsync();
+        var cvProfileId = JsonSerializer.Deserialize<Guid>(uploadBody);
+
+        // Act — get the profile
+        var response = await _client.GetAsync($"/api/v1/cv/{cvProfileId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("Hello World"); // text from the minimal PDF
+    }
+
     /// <summary>Creates a minimal valid PDF file content.</summary>
     private static byte[] CreateMinimalPdf()
     {

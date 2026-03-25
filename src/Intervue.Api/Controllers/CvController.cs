@@ -2,13 +2,15 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Intervue.Api.Extensions;
+using Intervue.Application.Common;
+using Intervue.Application.Features.Cv.GetCvProfile;
 using Intervue.Application.Features.Cv.ParseCv;
 using Intervue.Application.Features.Cv.UploadCv;
 
 namespace Intervue.Api.Controllers;
 
 /// <summary>
-/// Controller for CV-related endpoints: upload and parse.
+/// Controller for CV-related endpoints: upload, parse, and get.
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
@@ -31,7 +33,17 @@ public class CvController : ControllerBase
     {
         if (file is null || file.Length == 0)
         {
-            return BadRequest("A PDF file is required.");
+            var problemDetails = new ProblemDetails
+            {
+                Status = 400,
+                Title = "Validation",
+                Detail = "A PDF file is required.",
+                Extensions =
+                {
+                    ["errors"] = new[] { new { Code = "File.Required", Message = "A PDF file is required." } }
+                }
+            };
+            return new ObjectResult(problemDetails) { StatusCode = 400 };
         }
 
         // Read the file bytes
@@ -53,6 +65,17 @@ public class CvController : ControllerBase
     public async Task<IActionResult> Parse([FromBody] ParseCvCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    /// <summary>
+    /// Get a CV profile by Id, including all technologies, experiences, and projects.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetCvProfile(Guid id, CancellationToken cancellationToken)
+    {
+        var query = new GetCvProfileQuery(id);
+        var result = await _mediator.Send(query, cancellationToken);
         return result.ToActionResult();
     }
 }

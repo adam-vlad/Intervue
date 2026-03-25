@@ -1,3 +1,5 @@
+using Intervue.Domain.Common;
+
 namespace Intervue.Domain.ValueObjects;
 
 /// <summary>
@@ -12,9 +14,6 @@ public sealed record HashedPersonalData
 
     public HashedPersonalData(string hash)
     {
-        if (string.IsNullOrWhiteSpace(hash))
-            throw new ArgumentException("Hash cannot be empty.", nameof(hash));
-
-        Hash = hash;
+        Hash = Guard.AgainstNullOrWhiteSpace(hash, nameof(hash));
     }
 }
