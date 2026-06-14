@@ -1,0 +1,321 @@
+.feedback-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.feedback-page h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ── Overall score ─────────────────────────────────────────────── */
+
+.feedback-overall {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.feedback-overall-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.feedback-score-circle {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.feedback-score-circle svg {
+  transform: rotate(-90deg);
+}
+
+.feedback-score-track {
+  fill: none;
+  stroke: var(--bg-tertiary);
+  stroke-width: 10;
+}
+
+.feedback-score-fill {
+  fill: none;
+  stroke: var(--accent-primary);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.feedback-score-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ── Category scores ───────────────────────────────────────────── */
+
+.feedback-categories {
+  margin-bottom: 40px;
+}
+
+.feedback-categories h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.feedback-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feedback-category-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.feedback-category-name {
+  width: 180px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.feedback-category-bar-bg {
+  flex: 1;
+  height: 8px;
+  background-color: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.feedback-category-bar-fill {
+  height: 100%;
+  width: var(--bar-width, 0%);
+  border-radius: 4px;
+  background-color: var(--accent-primary);
+  transition: width 1s ease;
+}
+
+.feedback-category-score {
+  width: 48px;
+  text-align: right;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Text sections — 3 column grid ────────────────────────────── */
+
+.feedback-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.feedback-section h2 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feedback-section-card {
+  padding: 16px 20px;
+  line-height: 1.7;
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  border-radius: var(--border-radius-lg);
+}
+
+.feedback-section-card.strengths {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--success);
+  color: var(--text-primary);
+}
+
+.feedback-section-card.weaknesses {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--error);
+  color: var(--text-primary);
+}
+
+.feedback-section-card.suggestions {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--warning);
+  color: var(--text-primary);
+}
+
+/* ── Conversation History ──────────────────────────────────────── */
+
+.feedback-history {
+  margin-bottom: 40px;
+}
+
+.feedback-history h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.feedback-history-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedback-history-message {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.feedback-history-message-candidate {
+  flex-direction: row-reverse;
+}
+
+.feedback-history-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.feedback-history-avatar-interviewer {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+.feedback-history-avatar-candidate {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.feedback-history-bubble {
+  padding: 12px 16px;
+  border-radius: var(--border-radius-lg);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-width: 560px;
+}
+
+.feedback-history-bubble-interviewer {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+}
+
+.feedback-history-bubble-candidate {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+.feedback-history-time {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.feedback-history-message-candidate .feedback-history-time {
+  text-align: right;
+}
+
+/* ── Actions ───────────────────────────────────────────────────── */
+
+.feedback-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 32px 0;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .feedback-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feedback-category-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .feedback-category-name {
+    width: 100%;
+  }
+
+  .feedback-category-bar-bg {
+    width: 100%;
+  }
+
+  .feedback-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .feedback-actions .btn {
+    text-align: center;
+  }
+}
+
+@media print {
+  .navbar,
+  .sidebar,
+  .feedback-actions,
+  .feedback-history {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .feedback-page {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .feedback-score-fill {
+    stroke: #333 !important;
+  }
+
+  .feedback-category-bar-fill {
+    background: #333 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .feedback-section-card {
+    border: 1px solid #ccc !important;
+    background: #f9f9f9 !important;
+    color: black !important;
+  }
+}

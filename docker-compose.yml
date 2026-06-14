@@ -1,0 +1,76 @@
+# Docker Compose — Intervue (AI Interview Coach)
+# Orchestrates all containers:
+# 1. ollama    — the local LLM server
+# 2. postgres  — PostgreSQL database
+# 3. pgadmin   — database viewer in browser (http://localhost:5050)
+# 4. api       — ASP.NET Core backend (http://localhost:5000)
+
+services:
+  # ── Ollama — local LLM server ──────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: intervue-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # ── PostgreSQL — relational database ───────────────────────────────
+  postgres:
+    image: postgres:17
+    container_name: intervue-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: intervue
+      POSTGRES_PASSWORD: intervue_dev
+      POSTGRES_DB: intervue_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ── pgAdmin — database viewer in browser ───────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: intervue-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@intervue.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # ── API — ASP.NET Core backend ─────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: src/Intervue.Api/Dockerfile
+    container_name: intervue-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=intervue_db;Username=intervue;Password=intervue_dev"
+      Ollama__BaseUrl: "http://ollama:11434"
+    depends_on:
+      - postgres
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  postgres_data:
+  pgadmin_data:

@@ -1,0 +1,16 @@
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\bin\Debug\net10.0\MockInterview.Application.deps.json
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\bin\Debug\net10.0\MockInterview.Application.dll
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\bin\Debug\net10.0\MockInterview.Application.pdb
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\bin\Debug\net10.0\MockInterview.Domain.dll
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\bin\Debug\net10.0\MockInterview.Domain.pdb
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.csproj.AssemblyReference.cache
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.AssemblyInfoInputs.cache
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.AssemblyInfo.cs
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.csproj.CoreCompileInputs.cache
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInte.1EB5AAFB.Up2Date
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.dll
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\refint\MockInterview.Application.dll
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.pdb
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\ref\MockInterview.Application.dll
+C:\Users\vldga\Desktop\MockInterview\src\MockInterview.Application\obj\Debug\net10.0\MockInterview.Application.sourcelink.json

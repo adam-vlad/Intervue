@@ -1,0 +1,115 @@
+{
+  "nav": {
+    "home": "Home",
+    "upload": "Upload CV",
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "Intervue",
+    "subtitle": "AI-Powered Technical Interview Coach",
+    "description": "Practice technical interviews with an AI that adapts to your CV. Get personalized questions, real-time feedback, and actionable suggestions to improve.",
+    "cta": "Get Started",
+    "step1Title": "Upload CV",
+    "step1Desc": "Upload your PDF resume and let our AI analyze your skills and experience",
+    "step2Title": "Practice Interview",
+    "step2Desc": "Answer personalized technical questions adapted to your level",
+    "step3Title": "Get Feedback",
+    "step3Desc": "Receive a detailed report with scores, strengths, and improvement areas"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "statsTotal": "Total Interviews",
+    "statsAvg": "Average Score",
+    "statsBest": "Best Score",
+    "cvProfiles": "My CV Profiles",
+    "recentInterviews": "Recent Interviews",
+    "uploadNew": "Upload New CV",
+    "emptyTitle": "No interviews yet",
+    "emptyDesc": "Upload your CV to start your first mock interview!",
+    "technologies": "technologies",
+    "interviews": "interviews",
+    "score": "Score",
+    "noScore": "N/A",
+    "scoreProgress": "Score Progress",
+    "difficultyDistribution": "Difficulty Distribution",
+    "topTechnologies": "Top Technologies",
+    "noData": "Not enough data",
+    "msgSuffix": "msg"
+  },
+  "upload": {
+    "title": "Upload CV",
+    "desc": "Upload your CV and our AI will analyze your skills, experience, and projects.",
+    "submit": "Analyze CV",
+    "dropzone": "Drag & drop your PDF here",
+    "dropzoneOr": "or click to browse",
+    "hintPdf": "PDF ONLY",
+    "hintSize": "MAX 10MB",
+    "validationPdf": "Only PDF files are accepted",
+    "validationSize": "Maximum file size: 10MB",
+    "uploading": "Uploading...",
+    "analyzing": "Analyzing your CV...",
+    "analyzingDesc": "The AI will extract your technologies, experience, and projects from the PDF.",
+    "step1": "File Integrity Verified",
+    "step2": "NLP Skill Extraction",
+    "step3": "Experience Mapping",
+    "privacy": "Your data is processed locally and never leaves the server."
+  },
+  "profile": {
+    "title": "CV Profile",
+    "difficultyLevel": "Detected Level",
+    "education": "Education",
+    "technologies": "Technologies",
+    "experience": "Work Experience",
+    "projects": "Projects",
+    "years": "years",
+    "months": "months",
+    "startInterview": "Start Interview",
+    "pastInterviews": "Past Interviews",
+    "noPastInterviews": "No interviews yet for this CV.",
+    "chooseLanguage": "Choose Interview Language",
+    "chooseLanguageDesc": "The AI interviewer will conduct the entire session in the chosen language.",
+    "languageEn": "English",
+    "languageRo": "Romanian",
+    "startIn": "Start"
+  },
+  "interview": {
+    "title": "Mock Interview",
+    "you": "You",
+    "placeholder": "Type your answer...",
+    "send": "Send",
+    "thinking": "AI is thinking...",
+    "endInterview": "End Interview",
+    "endConfirm": "Are you sure you want to end the interview and receive feedback?",
+    "yes": "Yes, end it",
+    "cancel": "Cancel"
+  },
+  "feedback": {
+    "title": "Interview Feedback",
+    "overallScore": "Overall Score",
+    "categoryScores": "Category Scores",
+    "strengths": "Strengths",
+    "weaknesses": "Weaknesses",
+    "suggestions": "Suggestions",
+    "conversationHistory": "Conversation History",
+    "downloadReport": "Download Report",
+    "newInterview": "New Interview",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "status": {
+    "NotStarted": "Not Started",
+    "InProgress": "In Progress",
+    "Completed": "Completed"
+  },
+  "difficulty": {
+    "Junior": "Junior",
+    "Mid": "Mid",
+    "Senior": "Senior"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "back": "Back"
+  }
+}

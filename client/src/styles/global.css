@@ -1,0 +1,171 @@
+/* ── Global Styles — Typography, body, scrollbar ───────────────── */
+
+@import 'highlight.js/styles/github-dark.css';
+
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.3px;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.1px;
+  transition: background-color var(--transition-speed),
+              box-shadow var(--transition-speed),
+              opacity var(--transition-speed);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-primary-hover);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+.btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--input-border);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Badge ─────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-junior {
+  background-color: var(--badge-junior-bg);
+  color: var(--badge-junior-text);
+}
+
+.badge-mid {
+  background-color: var(--badge-mid-bg);
+  color: var(--badge-mid-text);
+}
+
+.badge-senior {
+  background-color: var(--badge-senior-bg);
+  color: var(--badge-senior-text);
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-lg);
+  padding: 16px 20px;
+}
+
+.card-clickable {
+  cursor: pointer;
+  transition: background-color var(--transition-speed),
+              border-color var(--transition-speed),
+              box-shadow var(--transition-speed);
+}
+
+.card-clickable:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent-primary);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ── Status badges ─────────────────────────────────────────────── */
+
+.status-in-progress {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+}
+
+.status-completed {
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+
+.status-not-started {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* ── Page entrance animation ───────────────────────────────────── */
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.layout-content > * {
+  animation: pageFadeIn 0.35s ease;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .btn {
+    padding: 8px 16px;
+  }
+}

@@ -1,0 +1,136 @@
+/* ── CSS Custom Properties — Dual Theme System ─────────────────────
+   Palette: emerald accent, editorial typography, warm darks.
+   Accent: #059669 light / #34d399 dark.
+───────────────────────────────────────────────────────────────────── */
+
+/* ── Font system ─────────────────────────────────────────────────── */
+:root {
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Syne', 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'Courier New', 'Lucida Console', monospace;
+}
+
+/* Light theme */
+:root {
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f5;
+  --bg-tertiary: #efedeb;
+
+  /* Text */
+  --text-primary: #1a1917;
+  --text-secondary: #787774;
+  --text-muted: #a8a29e;
+
+  /* Accent — emerald */
+  --accent-primary: #059669;
+  --accent-primary-hover: #047857;
+  --accent-secondary: #0ea5e9;
+
+  /* Semantic */
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --warning: #c4841d;
+  --warning-bg: #fdf4e8;
+  --error: #c4554d;
+  --error-bg: #fce8e8;
+  --info: #059669;
+  --info-bg: #ecfdf5;
+
+  /* Surfaces */
+  --card-bg: #ffffff;
+  --card-border: #e3e3e0;
+  --card-shadow: none;
+  --card-shadow-hover: 0 2px 10px rgba(5, 150, 105, 0.08);
+
+  /* Inputs */
+  --input-bg: #ffffff;
+  --input-border: #d3d1cb;
+  --input-focus-border: #059669;
+
+  /* Navbar */
+  --navbar-bg: #ffffff;
+  --navbar-border: #e3e3e0;
+
+  /* Sidebar */
+  --sidebar-bg: #f7f7f5;
+  --sidebar-border: #e3e3e0;
+  --sidebar-item-hover: #efedeb;
+  --sidebar-item-active: #ecfdf5;
+  --sidebar-item-active-border: #059669;
+
+  /* Badges */
+  --badge-junior-bg: #ecfdf5;
+  --badge-junior-text: #059669;
+  --badge-mid-bg: #fffbeb;
+  --badge-mid-text: #d97706;
+  --badge-senior-bg: #f3e8ff;
+  --badge-senior-text: #7c3aed;
+
+  /* Misc */
+  --border-radius: 4px;
+  --border-radius-lg: 6px;
+  --border-radius-full: 9999px;
+  --transition-speed: 0.18s;
+  --max-width: 1100px;
+  --sidebar-width: 200px;
+  --navbar-height: 48px;
+}
+
+/* Dark theme — warm near-blacks, vivid emerald */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-primary: #0d0f0e;
+  --bg-secondary: #131715;
+  --bg-tertiary: #1a1f1d;
+
+  /* Text */
+  --text-primary: #e8ede9;
+  --text-secondary: #8b9490;
+  --text-muted: #5c6560;
+
+  /* Accent */
+  --accent-primary: #34d399;
+  --accent-primary-hover: #10b981;
+  --accent-secondary: #38bdf8;
+
+  /* Semantic */
+  --success: #34d399;
+  --success-bg: #052e1c;
+  --warning: #f0b232;
+  --warning-bg: #1f1a0f;
+  --error: #da373c;
+  --error-bg: #1f0f0f;
+  --info: #34d399;
+  --info-bg: #052e1c;
+
+  /* Surfaces */
+  --card-bg: #161b19;
+  --card-border: #232a27;
+  --card-shadow: none;
+  --card-shadow-hover: 0 4px 20px rgba(52, 211, 153, 0.1);
+
+  /* Inputs */
+  --input-bg: #0d0f0e;
+  --input-border: #232a27;
+  --input-focus-border: #34d399;
+
+  /* Navbar */
+  --navbar-bg: #0b0d0c;
+  --navbar-border: #161b19;
+
+  /* Sidebar */
+  --sidebar-bg: #0f1210;
+  --sidebar-border: #1a1f1d;
+  --sidebar-item-hover: #1a1f1d;
+  --sidebar-item-active: #0a2018;
+  --sidebar-item-active-border: #34d399;
+
+  /* Badges */
+  --badge-junior-bg: #052e1c;
+  --badge-junior-text: #34d399;
+  --badge-mid-bg: #1f1a0f;
+  --badge-mid-text: #f0b232;
+  --badge-senior-bg: #1a0f2a;
+  --badge-senior-text: #a78bfa;
+}

@@ -1,0 +1,115 @@
+{
+  "nav": {
+    "home": "Acasă",
+    "upload": "Încarcă CV",
+    "dashboard": "Panou",
+    "settings": "Setări"
+  },
+  "home": {
+    "title": "Intervue",
+    "subtitle": "Pregătire pentru interviuri tehnice cu AI",
+    "description": "Simulează interviuri tehnice cu un AI adaptat la CV-ul tău. Primești întrebări personalizate, feedback imediat și sugestii concrete de îmbunătățire.",
+    "cta": "Începe",
+    "step1Title": "Încarcă CV-ul",
+    "step1Desc": "Încarcă CV-ul în format PDF și lasă AI-ul să îți analizeze experiența și competențele",
+    "step2Title": "Simulează interviul",
+    "step2Desc": "Răspunde la întrebări tehnice adaptate nivelului tău",
+    "step3Title": "Primește feedback",
+    "step3Desc": "Primești un raport detaliat cu scoruri, puncte forte și ce poți îmbunătăți"
+  },
+  "dashboard": {
+    "title": "Panou",
+    "statsTotal": "Total Interviuri",
+    "statsAvg": "Scor Mediu",
+    "statsBest": "Cel Mai Bun Scor",
+    "cvProfiles": "Profilurile Mele",
+    "recentInterviews": "Interviuri Recente",
+    "uploadNew": "Încarcă CV Nou",
+    "emptyTitle": "Niciun interviu încă",
+    "emptyDesc": "Încarcă CV-ul tău pentru a începe primul interviu simulat!",
+    "technologies": "tehnologii",
+    "interviews": "interviuri",
+    "score": "Scor",
+    "noScore": "N/A",
+    "scoreProgress": "Progres scoruri",
+    "difficultyDistribution": "Distribuție dificultăți",
+    "topTechnologies": "Top tehnologii",
+    "noData": "Date insuficiente",
+    "msgSuffix": "msg"
+  },
+  "upload": {
+    "title": "Încarcă CV",
+    "desc": "Încarcă CV-ul tău și AI-ul va analiza competențele, experiența și proiectele tale.",
+    "submit": "Analizează CV-ul",
+    "dropzone": "Trage și plasează PDF-ul aici",
+    "dropzoneOr": "sau apasă pentru a selecta fișierul",
+    "hintPdf": "DOAR PDF",
+    "hintSize": "MAX 10MB",
+    "validationPdf": "Sunt acceptate doar fișiere PDF",
+    "validationSize": "Dimensiunea maximă este de 10MB",
+    "uploading": "Se încarcă...",
+    "analyzing": "AI-ul analizează CV-ul tău...",
+    "analyzingDesc": "AI-ul va extrage tehnologiile, experiența și proiectele din PDF.",
+    "step1": "Fișier verificat",
+    "step2": "Identificare abilități tehnice",
+    "step3": "Analiza experienței",
+    "privacy": "Datele tale sunt procesate local și nu părăsesc serverul."
+  },
+  "profile": {
+    "title": "Profil CV",
+    "difficultyLevel": "Nivel detectat",
+    "education": "Educație",
+    "technologies": "Tehnologii",
+    "experience": "Experiență profesională",
+    "projects": "Proiecte",
+    "years": "ani",
+    "months": "luni",
+    "startInterview": "Începe interviul",
+    "pastInterviews": "Interviuri anterioare",
+    "noPastInterviews": "Niciun interviu pentru acest CV.",
+    "chooseLanguage": "Alege Limba Interviului",
+    "chooseLanguageDesc": "AI-ul va conduce întreaga sesiune în limba aleasă.",
+    "languageEn": "Engleză",
+    "languageRo": "Română",
+    "startIn": "Începe"
+  },
+  "interview": {
+    "title": "Interviu Simulat",
+    "you": "Tu",
+    "placeholder": "Scrie răspunsul tău...",
+    "send": "Trimite",
+    "thinking": "AI-ul se gândește...",
+    "endInterview": "Termină interviul",
+    "endConfirm": "Ești sigur că vrei să închei interviul și să primești feedback-ul?",
+    "yes": "Da, termină",
+    "cancel": "Anulează"
+  },
+  "feedback": {
+    "title": "Rezultatul interviului",
+    "overallScore": "Scor general",
+    "categoryScores": "Scoruri pe categorii",
+    "strengths": "Puncte forte",
+    "weaknesses": "Puncte slabe",
+    "suggestions": "Sugestii de îmbunătățire",
+    "conversationHistory": "Istoricul conversației",
+    "downloadReport": "Descarcă raport",
+    "newInterview": "Interviu nou",
+    "backToDashboard": "Înapoi la panou"
+  },
+  "status": {
+    "NotStarted": "Neînceput",
+    "InProgress": "În Curs",
+    "Completed": "Finalizat"
+  },
+  "difficulty": {
+    "Junior": "Junior",
+    "Mid": "Mid",
+    "Senior": "Senior"
+  },
+  "common": {
+    "loading": "Se încarcă...",
+    "error": "Ceva nu a funcționat",
+    "retry": "Încearcă din nou",
+    "back": "Înapoi"
+  }
+}

@@ -1,0 +1,122 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--navbar-height);
+  padding: 0 20px;
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--navbar-border);
+  transition: background-color var(--transition-speed),
+              border-color var(--transition-speed);
+}
+
+.navbar-brand {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+  letter-spacing: -0.5px;
+}
+
+.navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navbar-tab {
+  padding: 6px 14px;
+  border-radius: var(--border-radius);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed);
+}
+
+.navbar-tab:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.navbar-tab.active {
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Mobile ────────────────────────────────────────────────────── */
+
+.navbar-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border-radius: var(--border-radius);
+}
+
+.navbar-hamburger span {
+  display: block;
+  height: 2px;
+  background-color: var(--text-secondary);
+  border-radius: 1px;
+}
+
+.navbar-hamburger:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.navbar-mobile-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .navbar-center {
+    display: none;
+  }
+
+  .navbar > .navbar-actions {
+    display: none;
+  }
+
+  .navbar-hamburger {
+    display: flex;
+  }
+
+  .navbar-mobile-menu {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: var(--navbar-height);
+    left: 0;
+    right: 0;
+    background-color: var(--navbar-bg);
+    border-bottom: 1px solid var(--navbar-border);
+    padding: 8px;
+  }
+
+  .navbar-mobile-menu .navbar-tab {
+    display: block;
+    padding: 10px 12px;
+  }
+
+  .navbar-mobile-menu .navbar-actions {
+    display: flex;
+    padding: 8px 12px 4px;
+    border-top: 1px solid var(--card-border);
+    margin-top: 4px;
+  }
+}
